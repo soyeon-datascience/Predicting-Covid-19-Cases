@@ -1,0 +1,35 @@
+---
+title: "Feature Engineering - 1/0 for lab tests"
+output: html_notebook
+---
+
+# Feature Engineering - 1/0 for lab tests
+## Issue 18
+
+```{r}
+# Libraries
+library(readr)
+library(dplyr)
+```
+
+```{r}
+# Load clean data
+
+# CHANGE FILE LOCATION IF RUNNING ON ANOTHER MACHINE
+file_location = "~/DSI/GitHub/DS5360_case1_team3/10-process-data/after_cleaning_dataset.csv"
+dataset <- read_csv(file_location)
+
+dataset
+```
+
+```{r}
+# Check if patient had blood test
+feature_engineering_dataset <- dataset %>% mutate(patient_had_blood_test = ifelse(is.na(hemoglobin), 0, 1)) %>% 
+  mutate(patient_had_urine_test = ifelse(is.na(urea), 0, 1))
+```
+
+```{r}
+# Save to csv file
+write_csv(feature_engineering_dataset, "~/DSI/GitHub/DS5360_case1_team3/data/after_feature_engineering_dataset.csv")
+```
+

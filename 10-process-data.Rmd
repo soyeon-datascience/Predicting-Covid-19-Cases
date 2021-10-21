@@ -1,0 +1,65 @@
+---
+title: "Data Cleaning"
+output: html_notebook
+---
+
+# Data Cleaning for Case 1
+```{r}
+# packages
+library(janitor)
+library(readr)
+library(dplyr)
+```
+
+```{r}
+dataset <- read_csv("dataset.csv", col_types = cols(`Patient addmited to regular ward (1=yes, 0=no)` = col_integer(), 
+    `Patient addmited to semi-intensive unit (1=yes, 0=no)` = col_integer(), 
+    `Patient addmited to intensive care unit (1=yes, 0=no)` = col_integer(),
+    `Lipase dosage` = col_double()))
+```
+
+```{r}
+# Clean up dataset with janitor
+clean_dataset <- clean_names(dataset)
+```
+
+```{r}
+# Convert character data into integer for convenience
+clean_dataset[clean_dataset == "negative"] <- '0'
+clean_dataset[clean_dataset == "positive"] <- '1'
+clean_dataset[clean_dataset == 'not_detected'] <- '0'
+clean_dataset[clean_dataset == 'detected'] <- '1'
+
+# Change the column type from character to numeric since we changed the character data into numeric in the code above.
+clean_dataset[,c(2:111)] %<>% 
+      mutate_each(funs(if(is.character(.)) as.numeric(.) else .))
+```
+
+```{r}
+# Change long column names
+clean_dataset %>% 
+  rename(patient_admitted_to_regular_ward = patient_addmited_to_regular_ward_1_yes_0_no) %>% 
+  rename(patient_admitted_to_intensive_care_unit = patient_addmited_to_intensive_care_unit_1_yes_0_no) %>% 
+  rename(patient_admitted_to_semi_intensive_unit = patient_addmited_to_semi_intensive_unit_1_yes_0_no) %>% 
+  #rename(mean_corpuscular_hemoglobin_concentration = mean_corpuscular_hemoglobin_concentration_u_fffd_mchc) %>% 
+  rename(mean_corpuscular_volume = mean_corpuscular_volume_mcv) %>% 
+  rename(red_blood_cell_distribution = red_blood_cell_distribution_width_rdw) #%>% 
+  #rename(gamma_glutamyltransferase = gamma_glutamyltransferase_u_fffd) %>% 
+  #rename(ionized_calcium = ionized_calcium_u_fffd) %>% 
+  #rename(partial_thromboplastin_time = partial_thromboplastin_time_u_fffd_ptt_u_fffd) %>% 
+  #rename(creatine_phosphokinase = creatine_phosphokinase_u_fffd_cpk_u_fffd) 
+  
+```
+
+```{r}
+# Replace NAs with "not done"
+clean_dataset$urine_hemoglobin <- ifelse(is.na(clean_dataset$urine_hemoglobin), "not_done", clean_dataset$urine_hemoglobin)
+
+```
+
+
+```{r}
+# Save file as csv
+write.csv(clean_dataset, "clean_dataset.csv")
+```
+
